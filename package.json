@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Search selected text in custom search engines.",
   "main": "background.js",
-  "scripts": {},
+  "scripts": {
+    "lint": "web-ext lint",
+    "build": "web-ext build --overwrite-dest"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/londonbrown/contextual.git"
