@@ -28,13 +28,15 @@ document.addEventListener("DOMContentLoaded", () => {
 // Add or update a search engine from form values.
 function addOrUpdateEngine() {
     const idInput = document.getElementById("engineId")
+    const parentIdInput = document.getElementById("engineParentId")
     const displayNameInput = document.getElementById("engineDisplayName")
     const queryFormatInput = document.getElementById("engineQueryFormat")
 
     const newEngine = {
         id: idInput.value.trim(),
         displayName: displayNameInput.value.trim(),
-        queryFormat: queryFormatInput.value.trim()
+        queryFormat: queryFormatInput.value.trim(),
+        parentId: parentIdInput ? (parentIdInput.value.trim() || null) : null
     }
 
     if (!newEngine.id || !newEngine.displayName || !newEngine.queryFormat) {
@@ -45,13 +47,33 @@ function addOrUpdateEngine() {
     chrome.storage.sync.get("contextualSearchEngines", (result) => {
         const data = result || {}
         let engines = data.contextualSearchEngines || []
-        // Check if an engine with the same id exists
+
+        // If a parentId is provided, ensure that parent exists.
+        if (newEngine.parentId) {
+            const parentExists = engines.some(engine => engine.id === newEngine.parentId)
+            if (!parentExists) {
+                if (confirm(`Parent with id "${newEngine.parentId}" does not exist. Do you want to create a placeholder parent?`)) {
+                    // Create a placeholder parent (a category, so queryFormat is null).
+                    engines.push({
+                        id: newEngine.parentId,
+                        displayName: newEngine.parentId,
+                        queryFormat: null,
+                        parentId: null
+                    })
+                } else {
+                    // Cancel adding/updating if parent is missing.
+                    return
+                }
+            }
+        }
+
+        // Check for duplicate engine id.
         const existingIndex = engines.findIndex(engine => engine.id === newEngine.id)
         if (existingIndex > -1) {
-            // Update the existing engine.
             if (!confirm(`Engine with id "${newEngine.id}" already exists. Do you want to overwrite it?`)) {
                 return
             }
+            // Update the existing engine.
             engines[existingIndex] = newEngine
         } else {
             // Add the new engine.
@@ -68,6 +90,7 @@ function addOrUpdateEngine() {
             idInput.value = ""
             displayNameInput.value = ""
             queryFormatInput.value = ""
+            parentIdInput.value = ""
         })
     })
 }
@@ -88,7 +111,10 @@ function loadEngines() {
         engines.forEach(engine => {
             const li = document.createElement("li")
             li.style.marginBottom = "10px"
-            li.textContent = `${engine.displayName} (${engine.id}): ${engine.queryFormat}`
+            li.textContent =
+                `${engine.displayName} (${engine.id})` +
+                (engine.parentId ? ` [Parent: ${engine.parentId}]` : "") +
+                `: ${engine.queryFormat || "[Category]"}`
 
             // Create a delete button for each engine.
             const deleteBtn = document.createElement("button")
@@ -151,8 +177,29 @@ function handleImport(event) {
                 const data = result || {}
                 let currentEngines = data.contextualSearchEngines || []
 
-                // For each imported engine, decide whether to merge or skip duplicates.
-                importedEngines.forEach(importedEngine => {
+                // Process each imported engine.
+                for (const importedEngine of importedEngines) {
+                    // If a parentId is provided, check if it exists in current storage or among the imports.
+                    if (importedEngine.parentId) {
+                        const parentExists =
+                            currentEngines.some(engine => engine.id === importedEngine.parentId) ||
+                            importedEngines.some(engine => engine.id === importedEngine.parentId)
+                        if (!parentExists) {
+                            if (confirm(`Parent with id "${importedEngine.parentId}" does not exist for engine "${importedEngine.id}". Create a placeholder parent?`)) {
+                                currentEngines.push({
+                                    id: importedEngine.parentId,
+                                    displayName: importedEngine.parentId,
+                                    queryFormat: null,
+                                    parentId: null
+                                })
+                            } else {
+                                // Skip this engine if the parent is missing
+                                continue
+                            }
+                        }
+                    }
+
+                    // Check for duplicate engine id.
                     const index = currentEngines.findIndex(engine => engine.id === importedEngine.id)
                     if (index > -1) {
                         // If a duplicate exists, ask the user if they want to overwrite it.
@@ -164,7 +211,7 @@ function handleImport(event) {
                         // Not a duplicate, add the engine.
                         currentEngines.push(importedEngine)
                     }
-                })
+                }
                 chrome.storage.sync.set({ contextualSearchEngines: currentEngines }, () => {
                     loadEngines()
                     alert("Import successful!")

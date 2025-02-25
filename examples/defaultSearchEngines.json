@@ -1,17 +1,25 @@
 [
   {
+    "id": "search_engines",
+    "displayName": "Search Engines",
+    "queryFormat": null
+  },
+  {
     "id": "duckduckgo",
     "displayName": "DuckDuckGo search",
+    "parentId": "search_engines",
     "queryFormat": "https://duckduckgo.com/?q=hello world"
   },
   {
     "id": "google",
     "displayName": "Google search",
+    "parentId": "search_engines",
     "queryFormat": "https://www.google.com/search?q={c}"
   },
   {
     "id": "youtube",
     "displayName": "YouTube search",
+    "parentId": "search_engines",
     "queryFormat": "https://www.youtube.com/results?search_query={c}"
   }
 ]

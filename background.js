@@ -9,18 +9,42 @@ function updateContextMenus() {
             title: "Contextual",
             contexts: ["selection"]
         })
-    })
 
-    // Retrieve the user's search engines from storage.
-    chrome.storage.sync.get("contextualSearchEngines", (data) => {
-        const engines = data.contextualSearchEngines || []
-        engines.forEach((engine) => {
-            chrome.contextMenus.create({
-                id: "contextual_engine_" + engine.id,
-                // The %s will be replaced by the highlighted text.
-                title: `${engine.displayName}: %s`,
-                parentId: "contextual",
-                contexts: ["selection"]
+        chrome.storage.sync.get("contextualSearchEngines", function (result) {
+            const engines = (result && result.contextualSearchEngines) ? result.contextualSearchEngines : []
+
+            // For each engine, decide on its menu id and parent.
+            engines.forEach(engine => {
+                let menuId = ""
+                let parentMenuId = ""
+                let title = ""
+
+                // If an engine is meant to be a container (queryFormat is null)
+                // or is nested (has a parentId), use the custom prefix.
+                if (engine.parentId || engine.queryFormat === null) {
+                    menuId = "contextual_engine_custom_" + engine.id
+                    // If this engine is nested, its parent's menu id must use the custom prefix.
+                    if (engine.parentId) {
+                        parentMenuId = "contextual_engine_custom_" + engine.parentId
+                    } else {
+                        // Top-level container: parent is "contextual"
+                        parentMenuId = "contextual"
+                    }
+                    // Containers display just their name.
+                    title = engine.displayName
+                } else {
+                    // A top-level search engine (non-container)
+                    menuId = "contextual_engine_" + engine.id
+                    parentMenuId = "contextual"
+                    title = `${engine.displayName}: %s`
+                }
+
+                chrome.contextMenus.create({
+                    id: menuId,
+                    title: title,
+                    parentId: parentMenuId,
+                    contexts: ["selection"]
+                })
             })
         })
     })
@@ -31,10 +55,17 @@ updateContextMenus()
 
 // Listen for clicks on any context menu item.
 chrome.contextMenus.onClicked.addListener((info, tab) => {
-    // Check if the clicked item is one of our engine items.
-    if (info.menuItemId.startsWith("contextual_engine_")) {
-        // Extract the engine id from the menu item's id.
-        const engineId = info.menuItemId.split("_")[2]
+    const menuItemId = info.menuItemId
+    let engineId = null
+
+    // Determine if the menu item is a top-level or nested item.
+    if (menuItemId.startsWith("contextual_engine_custom_")) {
+        engineId = menuItemId.substring("contextual_engine_custom_".length)
+    } else if (menuItemId.startsWith("contextual_engine_")) {
+        engineId = menuItemId.substring("contextual_engine_".length)
+    }
+
+    if (engineId) {
         // Retrieve the current search engines.
         chrome.storage.sync.get("contextualSearchEngines", (data) => {
             const engines = data.contextualSearchEngines || []
