@@ -20,5 +20,11 @@
   "bugs": {
     "url": "https://github.com/londonbrown/contextual/issues"
   },
-  "homepage": "https://github.com/londonbrown/contextual#readme"
+  "homepage": "https://github.com/londonbrown/contextual#readme",
+  "dependencies": {
+    "web-ext": "^8.4.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.306"
+  }
 }
