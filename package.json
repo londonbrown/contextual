@@ -5,6 +5,7 @@
   "main": "background.js",
   "scripts": {
     "lint": "web-ext lint",
+    "run": "web-ext run",
     "build": "web-ext build --overwrite-dest"
   },
   "repository": {
