@@ -6,7 +6,7 @@
   "description": "Search selected text in custom search engines.",
 
   "icons": {
-    "48": "icons/logo.svg"
+    "48": "assets/icons/logo.svg"
   },
 
   "permissions": [
