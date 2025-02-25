@@ -49,6 +49,9 @@ function addOrUpdateEngine() {
         const existingIndex = engines.findIndex(engine => engine.id === newEngine.id)
         if (existingIndex > -1) {
             // Update the existing engine.
+            if (!confirm(`Engine with id "${newEngine.id}" already exists. Do you want to overwrite it?`)) {
+                return
+            }
             engines[existingIndex] = newEngine
         } else {
             // Add the new engine.
