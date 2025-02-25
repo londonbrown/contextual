@@ -42,7 +42,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             const engine = engines.find(e => e.id === engineId)
             if (engine) {
                 // Replace "{c}" in the engine queryFormat with the encoded selected text.
-                const searchUrl = engine.queryFormat.replace("{c}", encodeURIComponent(info.selectionText))
+                const searchUrl = engine.queryFormat.replaceAll("{c}", encodeURIComponent(info.selectionText))
                 chrome.tabs.create({ url: searchUrl }, (tab) => {
                     console.log(`Opened ${tab.url} in a new tab.`)
                 })
