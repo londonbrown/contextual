@@ -35,11 +35,11 @@ function addOrUpdateEngine() {
     const newEngine = {
         id: idInput.value.trim(),
         displayName: displayNameInput.value.trim(),
-        queryFormat: queryFormatInput.value.trim(),
+        queryFormat: queryFormatInput.value.trim() || null,
         parentId: parentIdInput ? (parentIdInput.value.trim() || null) : null
     }
 
-    if (!newEngine.id || !newEngine.displayName || !newEngine.queryFormat) {
+    if (!newEngine.id || !newEngine.displayName) {
         alert("All fields are required")
         return;
     }
@@ -124,6 +124,21 @@ function loadEngines() {
                 deleteEngine(engine.id)
             })
 
+            // Create an edit button.
+            const editBtn = document.createElement("button")
+            editBtn.textContent = "Edit"
+            editBtn.style.marginLeft = "10px"
+            editBtn.addEventListener("click", () => {
+                // Populate form fields with current engine values.
+                document.getElementById("engineId").value = engine.id
+                document.getElementById("engineParentId").value = engine.parentId || ""
+                document.getElementById("engineDisplayName").value = engine.displayName
+                document.getElementById("engineQueryFormat").value = engine.queryFormat || ""
+                // Focus on the query format field.
+                document.getElementById("engineQueryFormat").focus()
+            })
+
+            li.appendChild(editBtn)
             li.appendChild(deleteBtn)
             engineList.appendChild(li)
         })
