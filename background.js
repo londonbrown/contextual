@@ -41,8 +41,8 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
             // Find the engine matching the extracted id
             const engine = engines.find(e => e.id === engineId)
             if (engine) {
-                // Replace "%s" in the engine queryFormat with the encoded selected text.
-                const searchUrl = engine.queryFormat.replace("%s", encodeURIComponent(info.selectionText))
+                // Replace "{c}" in the engine queryFormat with the encoded selected text.
+                const searchUrl = engine.queryFormat.replace("{c}", encodeURIComponent(info.selectionText))
                 chrome.tabs.create({ url: searchUrl }, (tab) => {
                     console.log(`Opened ${tab.url} in a new tab.`)
                 })
