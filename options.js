@@ -101,7 +101,7 @@ function loadEngines() {
         const data = result || {}
         const engines = data.contextualSearchEngines || []
         const engineList = document.getElementById("engine-list")
-        engineList.innerHTML = ""
+        engineList.textContent = ""
 
         if (engines.length === 0) {
             engineList.textContent = "No search engines added yet."
@@ -117,11 +117,17 @@ function loadEngines() {
                 li.classList.add("category")
             }
 
-            li.innerHTML = `<span class="engine-info">
-                ${engine.displayName} (${engine.id})` +
-                        (engine.parentId ? ` [Parent: ${engine.parentId}]` : "") +
-                        `: ${engine.queryFormat || "[Category]"}
-              </span>`;
+            // Create a container for engine info
+            const engineInfo = document.createElement("span")
+            engineInfo.className = "engine-info"
+
+            let infoText = `${engine.displayName} (${engine.id})`
+            if (engine.parentId) {
+                infoText += ` [Parent: ${engine.parentId}]`
+            }
+            infoText += `: ${engine.queryFormat || "[Category]"}`
+            engineInfo.textContent = infoText
+            li.appendChild(engineInfo)
 
             const btnContainer = document.createElement("span");
             btnContainer.className = "item-buttons";
