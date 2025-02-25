@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Contextual",
+  "version": "1.0",
+
+  "description": "Search selected text in custom search engines.",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  }
+}
