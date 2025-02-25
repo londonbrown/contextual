@@ -111,14 +111,25 @@ function loadEngines() {
         engines.forEach(engine => {
             const li = document.createElement("li")
             li.style.marginBottom = "10px"
-            li.textContent =
-                `${engine.displayName} (${engine.id})` +
-                (engine.parentId ? ` [Parent: ${engine.parentId}]` : "") +
-                `: ${engine.queryFormat || "[Category]"}`
+
+            // Add a CSS class if this is a category (i.e. queryFormat is null)
+            if (engine.queryFormat === null) {
+                li.classList.add("category")
+            }
+
+            li.innerHTML = `<span class="engine-info">
+                ${engine.displayName} (${engine.id})` +
+                        (engine.parentId ? ` [Parent: ${engine.parentId}]` : "") +
+                        `: ${engine.queryFormat || "[Category]"}
+              </span>`;
+
+            const btnContainer = document.createElement("span");
+            btnContainer.className = "item-buttons";
 
             // Create a delete button for each engine.
             const deleteBtn = document.createElement("button")
             deleteBtn.textContent = "Delete"
+            deleteBtn.className = "delete"
             deleteBtn.style.marginLeft = "10px"
             deleteBtn.addEventListener("click", () => {
                 deleteEngine(engine.id)
@@ -127,6 +138,7 @@ function loadEngines() {
             // Create an edit button.
             const editBtn = document.createElement("button")
             editBtn.textContent = "Edit"
+            editBtn.className = "edit"
             editBtn.style.marginLeft = "10px"
             editBtn.addEventListener("click", () => {
                 // Populate form fields with current engine values.
@@ -134,12 +146,18 @@ function loadEngines() {
                 document.getElementById("engineParentId").value = engine.parentId || ""
                 document.getElementById("engineDisplayName").value = engine.displayName
                 document.getElementById("engineQueryFormat").value = engine.queryFormat || ""
-                // Focus on the query format field.
-                document.getElementById("engineQueryFormat").focus()
+                if (engine.queryFormat) {
+                    // Focus on the query format field.
+                    document.getElementById("engineQueryFormat").focus()
+                } else {
+                    // Focus on the display name field.
+                    document.getElementById("engineDisplayName").focus()
+                }
             })
 
-            li.appendChild(editBtn)
-            li.appendChild(deleteBtn)
+            btnContainer.appendChild(editBtn)
+            btnContainer.appendChild(deleteBtn)
+            li.appendChild(btnContainer)
             engineList.appendChild(li)
         })
     })

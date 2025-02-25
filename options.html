@@ -5,8 +5,22 @@
     <title>Contextual Settings</title>
     <style>
         body {
-            font-family: sans-serif;
-            margin: 20px;
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
         }
         .form-field {
             margin-bottom: 15px;
@@ -14,26 +28,59 @@
         label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
         }
         input[type="text"],
         input[type="url"] {
-            width: 425px;
-            padding: 5px;
-            display: block;
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
         }
         button {
-            padding: 5px 10px;
-            margin-top: 10px;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            opacity: 0.9;
         }
         .action-bar {
-            margin-bottom: 10px;
-        }
-        .action-bar button {
-            margin-right: 10px;
+            margin-bottom: 20px;
+            text-align: right;
         }
         #engine-list {
             list-style: none;
             padding: 0;
+        }
+        #engine-list li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        /* Category items have a distinct background and border */
+        #engine-list li.category {
+            background-color: #e8f4ff;
+            border-color: #0077cc;
+            color: #0077cc;
+            font-weight: bold;
+        }
+        .item-buttons button {
+            margin-left: 5px;
+        }
+        .item-buttons button.edit {
+            background-color: #27ae60;
+            color: #fff;
+        }
+        .item-buttons button.delete {
+            background-color: #e74c3c;
+            color: #fff;
         }
     </style>
 </head>
