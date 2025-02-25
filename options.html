@@ -1,1 +1,77 @@
-<!-- TODO -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contextual Settings</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+        }
+        .form-field {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"],
+        input[type="url"] {
+            width: 300px;
+            padding: 5px;
+            display: block;
+        }
+        button {
+            padding: 5px 10px;
+            margin-top: 10px;
+        }
+        .action-bar {
+            margin-bottom: 10px;
+        }
+        .action-bar button {
+            margin-right: 10px;
+        }
+        #engine-list {
+            list-style: none;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Your Search Engines</h1>
+
+    <!-- Form for adding/updating search engines -->
+    <form id="engine-form">
+        <div class="form-field">
+            <label for="engineId">Engine ID:</label>
+            <input type="text" id="engineId" placeholder="Unique identifier (e.g., google)" required>
+        </div>
+
+        <div class="form-field">
+            <label for="engineDisplayName">Display Name:</label>
+            <input type="text" id="engineDisplayName" placeholder="Display Name (e.g., Google)" required>
+        </div>
+
+        <div class="form-field">
+            <label for="engineQueryFormat">Query Format URL:</label>
+            <input type="url" id="engineQueryFormat" placeholder="URL with %s for query (e.g., https://www.google.com/search?q=%s)" required>
+        </div>
+
+        <button type="submit">Add / Update Engine</button>
+    </form>
+
+    <!-- List of currently saved engines -->
+    <h2>Your Search Engines</h2>
+
+    <div class="action-bar">
+        <button id="exportBtn">Export</button>
+        <button id="importBtn">Import</button>
+        <!-- Hidden file input for importing settings -->
+        <input type="file" id="importFile" style="display: none">
+    </div>
+
+    <ul id="engine-list"></ul>
+
+    <script src="options.js"></script>
+</body>
+</html>
