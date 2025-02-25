@@ -1,0 +1,17 @@
+[
+  {
+    "id": "duckduckgo",
+    "displayName": "DuckDuckGo search",
+    "queryFormat": "https://duckduckgo.com/?q=hello world"
+  },
+  {
+    "id": "google",
+    "displayName": "Google search",
+    "queryFormat": "https://www.google.com/search?q={c}"
+  },
+  {
+    "id": "youtube",
+    "displayName": "YouTube search",
+    "queryFormat": "https://www.youtube.com/results?search_query={c}"
+  }
+]

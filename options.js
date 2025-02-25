@@ -133,6 +133,48 @@ function exportSettings() {
     })
 }
 
-function handleImport(e) {
+// Handle importing settings from a JSON file.
+function handleImport(event) {
+    const file = event.target.files[0]
+    if (!file) return
 
+    const reader = new FileReader()
+    reader.onload = (e) => {
+        try {
+            const importedEngines = JSON.parse(e.target.result)
+            if (!Array.isArray(importedEngines)) {
+                throw new Error("Invalid format: Expected an array.")
+            }
+
+            // Retrieve the current search engines.
+            chrome.storage.sync.get("contextualSearchEngines", (result) => {
+                const data = result || {}
+                let currentEngines = data.contextualSearchEngines || []
+
+                // For each imported engine, decide whether to merge or skip duplicates.
+                importedEngines.forEach(importedEngine => {
+                    const index = currentEngines.findIndex(engine => engine.id === importedEngine.id)
+                    if (index > -1) {
+                        // If a duplicate exists, ask the user if they want to overwrite it.
+                        if (confirm(`Engine with id "${importedEngine.id}" already exists. Do you want to overwrite it?`)) {
+                            currentEngines[index] = importedEngine
+                        }
+                        // Otherwise, skip this imported engine.
+                    } else {
+                        // Not a duplicate, add the engine.
+                        currentEngines.push(importedEngine)
+                    }
+                })
+                chrome.storage.sync.set({ contextualSearchEngines: currentEngines }, () => {
+                    loadEngines()
+                    alert("Import successful!")
+                })
+            })
+        } catch (error) {
+            alert("Failed to import settings: " + error.message)
+        }
+    }
+    reader.readAsText(file)
+    // Reset the file input so the same file can be re-imported if needed.
+    event.target.value = ""
 }
