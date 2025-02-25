@@ -1,54 +1,107 @@
+// Initialize default state if no engines exist.
+function initializeDefaultState() {
+    chrome.storage.sync.get("contextualSearchEngines", function(result) {
+        let engines = result.contextualSearchEngines
+        if (!engines || engines.length === 0) {
+            engines = [
+                {
+                    id: "duckduckgo",
+                    displayName: "DuckDuckGo search",
+                    queryFormat: "https://duckduckgo.com/?q={c}"
+                },
+                {
+                    id: "youtube",
+                    displayName: "YouTube search",
+                    queryFormat: "https://www.youtube.com/results?search_query={c}"
+                },
+                {
+                    id: "shopping_category",
+                    displayName: "Shopping",
+                    queryFormat: null
+                },
+                {
+                    id: "amazon",
+                    displayName: "Amazon",
+                    parentId: "shopping_category",
+                    queryFormat: "https://www.amazon.com/s?k={c}"
+                }
+            ]
+            chrome.storage.sync.set({ contextualSearchEngines: engines }, function() {
+                updateContextMenus()
+            })
+        } else {
+            updateContextMenus()
+        }
+    })
+}
+
 function updateContextMenus() {
     chrome.contextMenus.removeAll(function() {
         // Create the top-level "Contextual" menu.
         chrome.contextMenus.create({
             id: "contextual",
             title: "Contextual",
-            contexts: ["selection"]
-        });
+            contexts: ["all"]
+        })
 
         chrome.storage.sync.get("contextualSearchEngines", function(result) {
-            const engines = (result && result.contextualSearchEngines) ? result.contextualSearchEngines : [];
+            const engines = (result && result.contextualSearchEngines) ? result.contextualSearchEngines : []
 
             // Build a map and initialize children array.
-            const engineMap = {};
+            const engineMap = {}
             engines.forEach(engine => {
-                engine.children = [];
-                engineMap[engine.id] = engine;
-            });
+                engine.children = []
+                engineMap[engine.id] = engine
+            })
 
             // Build the tree: assign children to their parents.
-            const roots = [];
+            const roots = []
             engines.forEach(engine => {
                 if (engine.parentId && engineMap[engine.parentId]) {
-                    engineMap[engine.parentId].children.push(engine);
+                    engineMap[engine.parentId].children.push(engine)
                 } else {
-                    roots.push(engine);
+                    roots.push(engine)
                 }
-            });
+            })
 
             // Recursively create menus from the roots.
             roots.forEach(engine => {
-                createMenuRecursive(engine, "contextual");
-            });
-        });
-    });
+                createMenuRecursive(engine, "contextual")
+            })
+
+            // Add separator between engines and other options
+            chrome.contextMenus.create({
+                id: "separator-1",
+                type: "separator",
+                parentId: "contextual",
+                contexts: ["all"]
+            })
+
+            // Add "Manage Search Engines" item under "Contextual".
+            chrome.contextMenus.create({
+                id: "contextual_manage_search_engines",
+                title: "Manage Search Engines",
+                parentId: "contextual",
+                contexts: ["all"]
+            })
+        })
+    })
 }
 
 // Recursively create a context menu item.
 function createMenuRecursive(engine, parentMenuId) {
-    const isContainer = (engine.queryFormat === null);
-    const isNested = (parentMenuId !== "contextual");
+    const isContainer = (engine.queryFormat === null)
+    const isNested = (parentMenuId !== "contextual")
 
     // Determine the menu ID.
     const menuId = (isNested || isContainer)
         ? "contextual_engine_custom_" + engine.id
-        : "contextual_engine_" + engine.id;
+        : "contextual_engine_" + engine.id
 
     // Determine the title:
     // If it's a container, show only the displayName.
     // Otherwise, append ": %s" for search engines.
-    const title = isContainer ? engine.displayName : `${engine.displayName}: %s`;
+    const title = isContainer ? engine.displayName : `${engine.displayName}: %s`
 
     chrome.contextMenus.create({
         id: menuId,
@@ -57,16 +110,16 @@ function createMenuRecursive(engine, parentMenuId) {
         contexts: ["selection"]
     }, function() {
         if (chrome.runtime.lastError) {
-            console.error("Error creating menu:", chrome.runtime.lastError);
+            console.error("Error creating menu:", chrome.runtime.lastError)
         }
-    });
+    })
 
     // Recursively create child menu items.
     if (engine.children && engine.children.length > 0) {
-        const newParentMenuId = "contextual_engine_custom_" + engine.id;
+        const newParentMenuId = "contextual_engine_custom_" + engine.id
         engine.children.forEach(child => {
-            createMenuRecursive(child, newParentMenuId);
-        });
+            createMenuRecursive(child, newParentMenuId)
+        })
     }
 }
 
@@ -76,6 +129,21 @@ updateContextMenus()
 // Listen for clicks on any context menu item.
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     const menuItemId = info.menuItemId
+
+    // If "Manage Search Engines" is clicked, open the options page.
+    if (menuItemId === "contextual_manage_search_engines") {
+        if (chrome.runtime.openOptionsPage) {
+            chrome.runtime.openOptionsPage(() => {
+                console.log("Opened Contextual Options page.")
+            })
+        } else {
+            chrome.tabs.create({url: chrome.runtime.getURL("options.html")}, () => {
+                console.log("Opened Contextual Options page.")
+            })
+        }
+        return
+    }
+
     let engineId = null
 
     // Determine if the menu item is a top-level or nested item.
@@ -101,6 +169,9 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
         })
     }
 })
+
+// Initialize default state on startup.
+initializeDefaultState();
 
 // Update the context menus when the stored search engines change.
 chrome.storage.onChanged.addListener((changes, area) => {
