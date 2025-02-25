@@ -117,7 +117,20 @@ function deleteEngine(engineId) {
 }
 
 function exportSettings() {
+    chrome.storage.sync.get("contextualSearchEngines", (result) => {
+        const data = result || {}
+        const engines = data.contextualSearchEngines || []
+        const blob = new Blob([JSON.stringify(engines, null, 2)], { type: "application/json" })
+        const url = URL.createObjectURL(blob)
 
+        const a = document.createElement("a")
+        a.href = url
+        a.download = "contextualSearchEngines.json"
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+    })
 }
 
 function handleImport(e) {
