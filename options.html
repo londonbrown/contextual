@@ -17,7 +17,7 @@
         }
         input[type="text"],
         input[type="url"] {
-            width: 300px;
+            width: 425px;
             padding: 5px;
             display: block;
         }
@@ -48,11 +48,6 @@
         </div>
 
         <div class="form-field">
-            <label for="engineParentId">Engine Parent ID:</label>
-            <input type="text" id="engineParentId" placeholder="Parent identifier (e.g., search_engines)">
-        </div>
-
-        <div class="form-field">
             <label for="engineDisplayName">Display Name:</label>
             <input type="text" id="engineDisplayName" placeholder="Display Name (e.g., Google)" required>
         </div>
@@ -60,6 +55,11 @@
         <div class="form-field">
             <label for="engineQueryFormat">Query Format URL:</label>
             <input type="url" id="engineQueryFormat" placeholder="URL with {c} for query (e.g., https://www.google.com/search?q={c})">
+        </div>
+
+        <div class="form-field">
+            <label for="engineParentId">(Optional) Engine Parent ID:</label>
+            <input type="text" id="engineParentId" placeholder="Parent identifier (e.g., search_engines)">
         </div>
 
         <button type="submit">Add / Update Engine</button>
